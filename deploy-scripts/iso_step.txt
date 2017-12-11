@@ -1,0 +1,23 @@
+iso方式安装系统
+注意事项：
+  1.安装系统的设备固件版本需要到2.40
+  2.所有指令中的IP均为bmc的IP
+  
+步骤：
+  1.关机
+    ipmitool -H device_bmc_IP -I lanplus -U root -P Huawei12#$ power off
+  2.设定下一次从光盘启动
+    sshpass -p 'Huawei12#$' ssh root@device_bmc_IP ipmcset -d bootdevice -v 5 once
+  3.拷贝iso到nfs服务器上
+    cp xxxx.iso /var/lib/lava/dispatcher/tmp/
+  4.挂载NFS文件到设备作为虚拟光驱
+    sshpass -p 'Huawei12#$' ssh root@device_bmc_IP ipmcset -t vmm -d connect -v nfs://nfs_bmc_IP/var/lib/lava/dispatcher/tmp/xxxx.iso
+  5.重启设备自动装机
+    ipmitool -H device_bmc_IP -I lanplus -U root -P Huawei12#$ power on
+    ipmitool -H device_bmc_IP -I lanplus -U root -P Huawei12#$ sol deactivate
+    ipmitool -H device_bmc_IP -I lanplus -U root -P Huawei12#$ sol activate
+  6.装机完成后退出
+    ~.
+  7.卸载虚拟光驱并关机
+  sshpass -p 'Huawei12#$' ssh root@device_bmc_IP ipmcset -t vmm -d disconnect
+  ipmitool -H device_bmc_IP -I lanplus -U root -P Huawei12#$ power off
